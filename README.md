@@ -119,17 +119,3 @@ The project maintains clear data lineage through:
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
-
-## 📝 License
-
-[Your chosen license]
-
-## 👥 Author
-
-[Your Name]
-
-## 🙏 Acknowledgments
-
-- Northwind database
-- DBT community
-- [Any other acknowledgments] 
