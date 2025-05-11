@@ -1,0 +1,272 @@
+version: 2
+
+models:
+  - name: fact_orders
+    description: Order facts at order-product grain, containing quantities, prices, discounts, and foreign key references.
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [order_id, product_id]
+
+    columns:
+
+      - name: product_id
+        description: Foreign key to dim_product
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: id
+
+      - name: customer_id
+        description: Foreign key to dim_customers
+        tests:
+          - relationships:
+              to: ref('dim_customers')
+              field: id
+
+      - name: employee_id
+        description: Foreign key to dim_employee
+        tests:
+          - relationships:
+              to: ref('dim_employee')
+              field: id
+
+      - name: shipper_id
+        description: Foreign key to dim_shippers
+        tests:
+          - relationships:
+              to: ref('dim_shippers')
+              field: id
+
+      - name: quantity
+        description: Quantity of the product ordered
+        tests:
+
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: unit_price
+        description: Unit price of the product at the time of order
+        tests:
+
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: discount
+        description: Discount percentage applied to the product (between 0 and 1)
+        tests:
+
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+              expression: "<= 1"
+
+      - name: total_price
+        description: Final price after discount
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+  - name: fact_purchase_order
+    description: Purchase order facts at the order level, containing quantities, amounts, and foreign key references.
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [purchase_order_id]
+
+    columns:
+      - name: purchase_order_id
+        description: Foreign key to dim_purchase_orders
+        tests:
+          - not_null
+
+      - name: supplier_id
+        description: Foreign key to dim_suppliers
+        tests:
+          - relationships:
+              to: ref('dim_suppliers')
+              field: id
+
+      - name: created_by
+        description: Foreign key to dim_employees (creator)
+        tests:
+          - relationships:
+              to: ref('dim_employee')
+              field: id
+
+      - name: approved_by
+        description: Foreign key to dim_employees (approver)
+        tests:
+          - relationships:
+              to: ref('dim_employee')
+              field: id
+
+      - name: submitted_by
+        description: Foreign key to dim_employees (submitter)
+        tests:
+          - relationships:
+              to: ref('dim_employee')
+              field: id
+
+      - name: order_status
+        description: The status of the purchase order
+        tests:
+          - not_null
+
+      - name: order_date_key
+        description: The date the purchase order was created
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 19000101"  # Ensures it is a valid date
+
+      - name: submitted_date_key
+        description: The date the purchase order was submitted
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 19000101"
+
+      - name: expected_date_key
+        description: The expected date for the purchase order
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 19000101"
+
+      - name: approved_date_key
+        description: The date the purchase order was approved
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 19000101"
+
+      - name: payment_date_key
+        description: The date the payment for the purchase order was made
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 19000101"
+
+      - name: shipping_fee
+        description: Shipping fee for the purchase order
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: taxes
+        description: Taxes applied to the purchase order
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: payment_amount
+        description: Total payment amount for the purchase order
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: " >= 0"
+
+
+
+      - name: total_quantity
+        description: The total quantity of items ordered in the purchase order
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: total_amount
+        description: The total amount for the purchase order
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+  - name: fact_inventory
+    description: Fact table for inventory transactions.
+    columns:
+      - name: inventory_id
+        description: Primary key from inventory transactions.
+        tests:
+          - not_null
+          - unique
+
+      - name: transaction_type
+        description: Type of transaction (e.g. purchase, sale).
+        tests:
+          - not_null
+
+      - name: transaction_created_date
+        description: Date the transaction was created (YYYYMMDD).
+        tests:
+          - not_null
+
+      - name: transaction_modified_date
+        description: Date the transaction was last modified (YYYYMMDD).
+
+      - name: product_id
+        description: Foreign key to dim_products.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: id
+
+      - name: quantity
+        description: Quantity of items in the transaction.
+        tests:
+          - not_null
+  - name: fact_invoices
+    description: Fact table for invoice-level financial metrics.
+    columns:
+      - name: invoice_id
+        description: Primary key for the invoice.
+        tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        description: Foreign key to dim_customers.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: id
+
+      - name: employee_id
+        description: Foreign key to dim_employees.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_employee')
+              field: id
+
+      - name: invoice_date_key
+        description: Integer surrogate key in YYYYMMDD format.
+        tests:
+          - not_null
+
+      - name: due_date_key
+        description: Integer surrogate key in YYYYMMDD format.
+
+      - name: tax
+        description: Tax amount for the invoice.
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: shipping
+        description: Shipping cost for the invoice.
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+      
+      - name: amount_due
+        description: Amount the customer owes for this invoice.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+      - name: total_invoice_amount
+        description: Total invoice amount including tax and shipping.
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+      - name: total_invoice_amount
+        description: Total invoice amount including tax and shipping.
+
+      - name: payment_terms_days
+        description: Number of days between invoice date and due date.
