@@ -71,7 +71,7 @@ Implemented for tracking historical changes in:
 
 1. Clone the repository:
 ```bash
-git clone [repository-url]
+git clone https://github.com/El3omda1st/Northwind-Data-Warehouse-and-OLAP-Modeling
 ```
 
 2. Start the Docker containers:
