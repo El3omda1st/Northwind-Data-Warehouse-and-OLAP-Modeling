@@ -112,6 +112,22 @@ The project maintains clear data lineage through:
 - Clear model dependencies
 - Documented transformations
 
+## 📊 Power BI Dashboard
+
+A Power BI dashboard has been developed to visualize key sales and order metrics from the Northwind Data Warehouse.
+
+### 📌 Features
+
+- **KPIs**: Total Sales, Number of Orders, Additional Charges, Average Sales per Order
+- **Sales by City & Product** (Bar Chart)
+- **Sales by Product** (Bar Chart)
+- **Sales by Employee** (Bar Chart)
+- **Sales by Month** (Line Chart)
+- **Order Status Distribution** (Donut Chart)
+- **Interactive filter slicers**: Month, City, Product
+
+> ⚠️ **Note**: Since Power BI Desktop is not supported on Linux, the dashboard was built using exported `.csv` files from the PostgreSQL database as data sources instead of a live database connection.
+
 ## 🤝 Contributing
 
 1. Fork the repository
